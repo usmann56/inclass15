@@ -10,6 +10,8 @@ An inventory management app
 
 - Input Validation: Ensures price and quantity fields accept only valid numeric values.
 
+- Default created at is today
+
 ## Enhanced Features
 
 - Bulk Delete:
@@ -22,6 +24,6 @@ An inventory management app
 
 - - Search by item name.
 
-- - Filter items by product category.
+- - Filter items by product category. (valid categories are General, Electronics, Clothing, Other)
 
 - - Filter items by stock status (quantity < 5).
