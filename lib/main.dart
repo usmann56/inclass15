@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'firebase_options.dart';
 import 'services/firestore_service.dart';
+import 'screens/add_edit_item_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -29,31 +29,24 @@ class InventoryHomePage extends StatefulWidget {
 }
 
 class _InventoryHomePageState extends State<InventoryHomePage> {
-  // TODO: 1. Initialize Firestore & Create a Stream for items
-  // TODO: 2. Build a ListView using a StreamBuilder to display items
-  // TODO: 3. Implement Navigation to an "Add Item" screen
-  // TODO: 4. Implement one of the Delete methods (swipe or in-edit)
-  final CollectionReference _products = FirebaseFirestore.instance.collection(
-    'Item',
-  );
+  final FirestoreService _firestoreService = FirestoreService();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text(widget.title)),
-      body: StreamBuilder<QuerySnapshot>(
-        stream: _products.snapshots(),
+      body: StreamBuilder<List<Item>>(
+        stream: _firestoreService.getItemsStream(),
         builder: (context, snapshot) {
           if (snapshot.hasError) {
             return Center(child: Text('Error: ${snapshot.error}'));
           }
 
-          if (snapshot.connectionState == ConnectionState.waiting) {
+          if (!snapshot.hasData) {
             return const Center(child: CircularProgressIndicator());
           }
 
-          final items = snapshot.data!.docs
-              .map((doc) => Item.fromDocument(doc))
-              .toList();
+          final items = snapshot.data!;
 
           if (items.isEmpty) {
             return const Center(child: Text('No items found'));
@@ -63,7 +56,6 @@ class _InventoryHomePageState extends State<InventoryHomePage> {
             itemCount: items.length,
             itemBuilder: (context, index) {
               final item = items[index];
-
               final formattedDate =
                   "${item.createdAt.year}-${item.createdAt.month.toString().padLeft(2, '0')}-${item.createdAt.day.toString().padLeft(2, '0')}";
 
@@ -90,12 +82,20 @@ class _InventoryHomePageState extends State<InventoryHomePage> {
                       children: [
                         IconButton(
                           icon: const Icon(Icons.edit),
-                          onPressed: () => print('Edit ${item.id}'),
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    AddEditItemScreen(item: item),
+                              ),
+                            );
+                          },
                         ),
                         IconButton(
                           icon: const Icon(Icons.delete),
                           onPressed: () async {
-                            await _products.doc(item.id).delete();
+                            await _firestoreService.deleteItem(item.id!);
                           },
                         ),
                       ],
@@ -108,15 +108,11 @@ class _InventoryHomePageState extends State<InventoryHomePage> {
         },
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () async {
-          final newItem = Item(
-            name: 'dummy',
-            quantity: 1,
-            price: 1,
-            category: 'dummy',
-            createdAt: DateTime.now(),
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const AddEditItemScreen()),
           );
-          await _products.add(newItem.toMap());
         },
         tooltip: 'Add Item',
         child: const Icon(Icons.add),

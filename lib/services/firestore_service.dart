@@ -46,22 +46,44 @@ class Item {
   }
 }
 
-// class FirestoreService {
-//   // TODO: Create collection reference for 'items'
-//   // TODO: Implement addItem method
-//   Future<void> addItem(Item item) async {
-//     // TODO: Convert item to map and add to collection
-//   }
-//   // TODO: Implement getItemsStream method
-//   Stream<List<Item>> getItemsStream() {
-//     // TODO: Return stream of items from Firestore
-//   }
-//   // TODO: Implement updateItem method
-//   Future<void> updateItem(Item item) async {
-//     // TODO: Update specific document by ID
-//   }
-//   // TODO: Implement deleteItem method
-//   Future<void> deleteItem(String itemId) async {
-//     // TODO: Delete document by ID
-//   }
-// }
+class FirestoreService {
+  final CollectionReference _itemsCollection = FirebaseFirestore.instance
+      .collection('Item');
+
+  Future<void> addItem(Item item) async {
+    try {
+      await _itemsCollection.add(item.toMap());
+    } catch (e) {
+      print('Error adding item: $e');
+      rethrow;
+    }
+  }
+
+  Stream<List<Item>> getItemsStream() {
+    return _itemsCollection.snapshots().map((snapshot) {
+      return snapshot.docs.map((doc) => Item.fromDocument(doc)).toList();
+    });
+  }
+
+  Future<void> updateItem(Item item) async {
+    if (item.id == null) {
+      throw ArgumentError('Item ID cannot be null for update');
+    }
+
+    try {
+      await _itemsCollection.doc(item.id).update(item.toMap());
+    } catch (e) {
+      print('Error updating item: $e');
+      rethrow;
+    }
+  }
+
+  Future<void> deleteItem(String itemId) async {
+    try {
+      await _itemsCollection.doc(itemId).delete();
+    } catch (e) {
+      print('Error deleting item: $e');
+      rethrow;
+    }
+  }
+}
