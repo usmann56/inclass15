@@ -1,16 +1,27 @@
 # inclass15
 
-A new Flutter project.
+An inventory management app
 
-## Getting Started
+# Key Features
 
-This project is a starting point for a Flutter application.
+## Basic Features
 
-A few resources to get you started if this is your first Flutter project:
+- CRUD Operations: Create, Read, Update, and Delete inventory items.
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+- Input Validation: Ensures price and quantity fields accept only valid numeric values.
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Enhanced Features
+
+- Bulk Delete:
+
+- - Select multiple items using checkboxes and delete them all at once.
+
+- - Includes a confirmation dialog to prevent accidental deletion.
+
+- Search and Filtering:
+
+- - Search by item name.
+
+- - Filter items by product category.
+
+- - Filter items by stock status (quantity < 5).
